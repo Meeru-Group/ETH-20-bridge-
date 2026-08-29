@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>TMR Testnet ↔ EVM Testnet Bridge</title>
+  <style>
+    :root{color-scheme:dark}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:#0b1020;color:#eef2ff}
+    .wrap{max-width:900px;margin:auto;padding:28px 18px 60px}
+    .card{background:#121a31;border:1px solid #2a385f;border-radius:18px;padding:22px;margin:16px 0}
+    h1{font-size:30px;margin:0 0 8px}
+    h2{font-size:20px;margin:0 0 12px}
+    .muted{color:#aab6d4}
+    .badge{display:inline-block;padding:7px 11px;border-radius:999px;background:#164e3b;color:#8ef0bf;font-weight:700}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .row{display:flex;gap:10px;flex-wrap:wrap}
+    button{border:0;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer;background:#5b67ff;color:white}
+    button.secondary{background:#25304f}
+    input{width:100%;padding:12px;border-radius:10px;border:1px solid #35456f;background:#0b1227;color:#fff}
+    label{display:block;margin:10px 0 6px;color:#b8c4df}
+    code{background:#0a1124;padding:3px 6px;border-radius:6px}
+    .warning{border-color:#7a5b19;background:#241d0b}
+    @media(max-width:700px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <span class="badge">TESTNET ONLY</span>
+  <h1>TMR ↔ EVM Wrapped TMR</h1>
+  <p class="muted">Testnet bridge interface. No mainnet assets are supported.</p>
+
+  <div class="card">
+    <h2>Connection</h2>
+    <p id="status" class="muted">Wallet not connected.</p>
+    <div class="row">
+      <button id="connect">Connect EVM Wallet</button>
+      <button class="secondary" id="health">Check API</button>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>TMR Testnet → wTMR</h2>
+      <p class="muted">Send TMR to the bridge deposit address. After the TMR-side transaction is verified, the relayer can mint wTMR.</p>
+      <label>TMR deposit address</label>
+      <input id="tmrAddress" placeholder="TMR testnet deposit address">
+      <label>EVM recipient</label>
+      <input id="evmAddress" placeholder="0x...">
+    </div>
+
+    <div class="card">
+      <h2>wTMR → TMR Testnet</h2>
+      <p class="muted">Burn wTMR with the deployed testnet contract. The TMR-side relayer then processes the withdrawal.</p>
+      <label>TMR recipient</label>
+      <input id="withdrawAddress" placeholder="TMR1...">
+      <label>Amount (wTMR)</label>
+      <input id="amount" inputmode="decimal" placeholder="100">
+    </div>
+  </div>
+
+  <div class="card warning">
+    <strong>Important:</strong>
+    This website is only the bridge UI. A real two-way bridge still requires a TMR testnet verifier/relayer and a deployed WrappedTMR contract.
+    Do not enter a mainnet private key or real funds.
+  </div>
+</div>
+
+<script>
+  const statusEl = document.getElementById("status");
+  document.getElementById("connect").onclick = async () => {
+    if (!window.ethereum) {
+      statusEl.textContent = "MetaMask/compatible EVM wallet not found.";
+      return;
+    }
+    try {
+      const accounts = await window.ethereum.request({method:"eth_requestAccounts"});
+      statusEl.textContent = "Connected: " + accounts[0];
+      document.getElementById("evmAddress").value = accounts[0];
+    } catch(e) {
+      statusEl.textContent = "Connection cancelled or failed.";
+    }
+  };
+
+  document.getElementById("health").onclick = async () => {
+    try {
+      const r = await fetch("/api/health");
+      const j = await r.json();
+      statusEl.textContent = "API: " + (j.status || "unknown") + " • network: " + (j.network || "unknown");
+    } catch(e) {
+      statusEl.textContent = "API check failed.";
+    }
+  };
+</script>
+</body>
+</html>

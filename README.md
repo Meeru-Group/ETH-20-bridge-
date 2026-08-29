@@ -65,3 +65,18 @@ The EVM contract alone cannot verify a TMR blockchain transaction. You need a TM
 7. releases the locked TMR on TMR Testnet.
 
 Do not use the Vercel RPC gateway as the blockchain source of truth. Use the actual TMR Testnet node/API.
+
+
+## Vercel deployment
+
+The repository now contains a root `index.html` and a valid `vercel.json`, so the Vercel URL `/` serves the testnet bridge UI instead of returning `404 NOT_FOUND`.
+
+For Vercel, deploy the repository root (`ETH-20-bridge--main`) and do not configure an Express entrypoint.
+
+The Vercel page is only the UI/API layer. The real testnet bridge still needs:
+- a deployed `WrappedTMR` contract on an EVM testnet;
+- a real TMR Testnet verification service;
+- a relayer funded only with testnet gas;
+- `TMR_BRIDGE_URL` pointing to that real verification service.
+
+Do not put a private key in frontend code or in `index.html`.
