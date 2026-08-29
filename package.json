@@ -1,0 +1,18 @@
+{
+  "name": "tmr-wtmr-evm-testnet",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TMR Testnet wrapped TMR bridge for EVM testnets",
+  "scripts": {
+    "compile": "hardhat compile",
+    "deploy": "hardhat run scripts/deploy.js --network sepolia",
+    "relayer": "node relayer/index.js"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.4.0",
+    "dotenv": "^16.6.1",
+    "ethers": "^6.15.0",
+    "hardhat": "^2.26.3"
+  },
+  "devDependencies": {}
+}
